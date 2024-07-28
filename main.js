@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import chalk from 'chalk';
 import { signup, login } from './user.js';
 import { configureTest, executeTypingTest } from './testconfig.js';
@@ -30,14 +32,23 @@ async function exitOrRestart() {
 // Main function to run the typing speed tester application
 async function main() {
     welcomeAndIntroduction();
-    // Sign up or login
-    const isLoggedIn = await login().catch(() => false);
-    if (!isLoggedIn) {
-        const newUser = await signup();
-        console.log(chalk.green(`Welcome, ${newUser.name}! You are successfully signed up.`));
-    }
-    else {
-        console.log(chalk.bgYellowBright('Welcome back!'));
+    const users = [];
+    // Sign up a new user
+    const newUser = await signup();
+    users.push(newUser);
+    console.log(chalk.green(`Welcome, ${newUser.name}! You are successfully signed up.`));
+    // Log in
+    let isLoggedIn = false;
+    let currentUser = null;
+    while (!isLoggedIn) {
+        currentUser = await login(users);
+        if (currentUser) {
+            isLoggedIn = true;
+            console.log(chalk.bgYellowBright(`Welcome back, ${currentUser.name}!`));
+        }
+        else {
+            console.log(chalk.red('Invalid email or password. Please try again.'));
+        }
     }
     let exit = false;
     while (!exit) {

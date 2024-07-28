@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { signup, login, user } from './user.js';
+import { signup, login, User } from './user.js';
 import { configureTest, executeTypingTest, TestConfig } from './testconfig.js';
 import inquirer from 'inquirer';
 
@@ -34,13 +34,24 @@ async function exitOrRestart(): Promise<boolean> {
 async function main() {
     welcomeAndIntroduction();
 
-    // Sign up or login
-    const isLoggedIn = await login().catch(() => false);
-    if (!isLoggedIn) {
-        const newUser: user = await signup();
-        console.log(chalk.green(`Welcome, ${newUser.name}! You are successfully signed up.`));
-    } else {
-        console.log(chalk.bgYellowBright('Welcome back!'));
+    const users: User[] = [];
+
+    // Sign up a new user
+    const newUser: User = await signup();
+    users.push(newUser);
+    console.log(chalk.green(`Welcome, ${newUser.name}! You are successfully signed up.`));
+
+    // Log in
+    let isLoggedIn = false;
+    let currentUser: User | null = null;
+    while (!isLoggedIn) {
+        currentUser = await login(users);
+        if (currentUser) {
+            isLoggedIn = true;
+            console.log(chalk.bgYellowBright(`Welcome back, ${currentUser.name}!`));
+        } else {
+            console.log(chalk.red('Invalid email or password. Please try again.'));
+        }
     }
 
     let exit = false;

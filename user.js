@@ -1,5 +1,5 @@
 import inquirer from "inquirer";
-// function to handle user signup
+// Function to handle user signup
 export function signup() {
     return inquirer.prompt([
         {
@@ -11,7 +11,7 @@ export function signup() {
         {
             name: 'email',
             type: 'input',
-            message: 'Enter your email:',
+            message: 'Enter your email',
             validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
         },
         {
@@ -33,11 +33,13 @@ export function login() {
         },
         {
             name: 'password',
-            type: 'input',
-            message: ' Enter your password',
+            type: 'password',
+            message: 'Enter your password',
             mask: '*',
             validate: (value) => value.length >= 6
         }
-    ]).then(() => true);
-    //   Simulate a successful login
+    ]).then(answers => {
+        const user = users.find(u => u.email === answers.email && u.password === answers.password);
+        return user || null;
+    });
 }
